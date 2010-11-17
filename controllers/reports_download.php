@@ -250,10 +250,13 @@ class Reports_Download_Controller extends Main_Controller
                     }
                 }
 
+                $happy_date = date("Y-m-d.H.i.s", time());
+                $host =  parse_url(url::site(), PHP_URL_HOST);
                 // Output to browser
                 header("Content-type: text/x-csv");
                 header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-                header("Content-Disposition: attachment; filename=" . time() . ".csv");
+                //header("Content-Disposition: attachment; filename=" . time() . ".csv");
+                header("Content-Disposition: attachment; filename=" . $host . "." . $happy_date . ".csv");
                 header("Content-Length: " . strlen($report_csv));
                 echo $report_csv;
                 exit;
