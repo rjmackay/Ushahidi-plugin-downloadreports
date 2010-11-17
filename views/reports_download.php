@@ -59,6 +59,9 @@
                    	<td><?php print form::checkbox('data_include[]','4',TRUE); ?><?php echo Kohana::lang('ui_main.include_latitude');?></td>
                     	<td><?php print form::checkbox('data_include[]','5',TRUE); ?><?php echo Kohana::lang('ui_main.include_longitude');?></td>
                 </tr>
+		<tr>
+			<td><?php print form::checkbox('data_include[]','6',FALSE);?>Split Categories</td>
+		</tr>
 				<tr>
 					<!--<td colspan="2">
 						<div class="date-box">
