@@ -30,6 +30,7 @@ class Reports_Download_Controller extends Main_Controller
 
     function index($page = 1)
     {
+
 		$this->template->header->header_block = $this->themes->header_block();
 		$this->template->header->this_page ='reports_download';
         $this->template->content = new View('reports_download');
@@ -44,10 +45,12 @@ class Reports_Download_Controller extends Main_Controller
         
         $errors = $form;
         $form_error = FALSE;
+        $split_categories = FALSE;
 
         // check, has the form been submitted, if so, setup validation
         if ($_POST)
         {
+
             // Instantiate Validation, use $post, so we don't overwrite $_POST fields with our own things
             $post = Validation::factory($_POST);
 
@@ -56,7 +59,7 @@ class Reports_Download_Controller extends Main_Controller
 
             // Add some rules, the input field, followed by a list of checks, carried out in order
             $post->add_rules('data_point.*','required','numeric','between[1,4]');
-            $post->add_rules('data_include.*','numeric','between[1,5]');
+            $post->add_rules('data_include.*','numeric','between[1,6]');
             $post->add_rules('from_date','date_mmddyyyy');
             $post->add_rules('to_date','date_mmddyyyy');
 
@@ -99,6 +102,7 @@ class Reports_Download_Controller extends Main_Controller
                     if ($item == 4) {
                         $filter .= " OR incident_verified = 0 ";
                     }
+
                 }
                 $filter .= ") ";
 
@@ -113,91 +117,137 @@ class Reports_Download_Controller extends Main_Controller
 
                 // Column Titles
                 $report_csv = "#,INCIDENT TITLE,INCIDENT DATE";
+                $category_counter = 3;
+                $category_location = 0;
                 foreach($post->data_include as $item)
                 {
                     if ($item == 1) {
                         $report_csv .= ",LOCATION";
+                        $category_counter++;
                     }
                     
                     if ($item == 2) {
                         $report_csv .= ",DESCRIPTION";
+                        $category_counter++;
                     }
                     
                     if ($item == 3) {
                         $report_csv .= ",CATEGORY";
+                        $category_location = $category_counter;
                     }
                     
                     if ($item == 4) {
                         $report_csv .= ",LATITUDE";
+                        $category_counter++;
                     }
                     
                     if($item == 5) {
                         $report_csv .= ",LONGITUDE";
+                        $category_counter++;
                     }
+
+                    if ($item == 6){
+                        $split_categories = TRUE;  
+                    }
+
                 }
                 $report_csv .= ",APPROVED,VERIFIED";
                 $report_csv .= "\n";
-
+               
                 foreach ($incidents as $incident)
                 {
-                    $report_csv .= '"'.$incident->id.'",';
-                    $report_csv .= '"'.$this->_csv_text($incident->incident_title).'",';
-                    $report_csv .= '"'.$incident->incident_date.'"';
+                    $new_report = array();
+                    array_push($new_report,'"'.$incident->id.'"');
+                    array_push($new_report,'"'.$this->_csv_text($incident->incident_title).'"');
+                    array_push($new_report,'"'.$incident->incident_date.'"');
 
                     foreach($post->data_include as $item)
                     {
                         switch ($item)
                         {
                             case 1:
-                                $report_csv .= ',"'.$this->_csv_text($incident->location->location_name).'"';
+                                array_push($new_report,'"'.$this->_csv_text($incident->location->location_name).'"');
                             break;
 
                             case 2:
-                                $report_csv .= ',"'.$this->_csv_text($incident->incident_description).'"';
+                                array_push($new_report,'"'.$this->_csv_text($incident->incident_description).'"');
                             break;
 
                             case 3:
-                                $report_csv .= ',"';
-                            
+                                $catstring = '"';
+                                $catcnt = 0;        
                                 foreach($incident->incident_category as $category)
                                 {
+                                    if ($catcnt > 0){
+                                       $catstring .= ",";
+                                    }
                                     if ($category->category->category_title)
                                     {
-                                        $report_csv .= $this->_csv_text($category->category->category_title) . ", ";
+                                        $catstring .= $this->_csv_text($category->category->category_title);
                                     }
+                                    $catcnt++;
                                 }
-                                $report_csv .= '"';
+                                $catstring .= '"';
+                                array_push($new_report,$catstring);
                             break;
                         
                             case 4:
-                                $report_csv .= ',"'.$this->_csv_text($incident->location->latitude).'"';
+                                array_push($new_report,'"'.$this->_csv_text($incident->location->latitude).'"');
                             break;
                         
                             case 5:
-                                $report_csv .= ',"'.$this->_csv_text($incident->location->longitude).'"';
+                                array_push($new_report,'"'.$this->_csv_text($incident->location->longitude).'"');
                             break;
                         }
                     }
                     
                     if ($incident->incident_active)
                     {
-                        $report_csv .= ",YES";
+                        array_push($new_report,"YES");
                     }
                     else
                     {
-                        $report_csv .= ",NO";
+                        array_push($new_report,"NO");
                     }
                     
                     if ($incident->incident_verified)
                     {
-                        $report_csv .= ",YES";
+                        array_push($new_report,"YES");
                     }
                     else
                     {
-                        $report_csv .= ",NO";
+                        array_push($new_report,"NO");
                     }
                     
-                    $report_csv .= "\n";
+                    array_push($new_report,"\n");
+                    $catsplit = explode(',',trim($new_report[$category_location],'"'));
+                    //$catsplit = explode(',',$new_report[$category_location]);
+                    if ($split_categories && count($catsplit) > 1){
+                    //die ("ound multi categories:  $new_report[$category_location] - $new_report[0] " . print_r($new_report));
+                    //die ("ound multi categories:  $new_report[$category_location] - $new_report[0] ");
+                                foreach($catsplit as $cat){
+                                       $new = $new_report;
+                                       $new[$category_location] = '"' . $cat .'"';
+                                       $repcnt = 0;
+                                       foreach($new as $col){
+                                                if ($repcnt > 0){
+                                                        $report_csv .= ",";
+                                                }
+                                                $report_csv .= $col;
+                                                $repcnt++;
+                                       }
+
+                        }
+                    }else{
+                        $repcnt = 0;
+                        foreach ($new_report as $column){
+                             if ($repcnt > 0){
+                                $report_csv .= ",";
+                             }
+                             $report_csv .= $column;
+                             $repcnt++;
+                         }
+                    }
                 }
 
                 // Output to browser
