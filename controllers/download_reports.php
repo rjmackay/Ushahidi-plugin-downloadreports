@@ -80,23 +80,16 @@ Class Download_Reports_Controller extends Main_Controller {
 			// $post validate check
 			if ($post->validate())
 			{
-
-				$filter = "(1 = 2";
-				$filter2 = "1 = 2";
-
-				foreach ($post->data_point as $item)
-				{
-					$filter .= " OR category_id=$item";
-					$filter2 .= " OR id=$item";
-				}
+				$incident_query = ORM::factory('incident')->where('incident_active', 1);
+				$incident_query->in('category_id', $post->data_point);
 
 				// Report Date Filter
 				if (!empty($post->from_date) && !empty($post->to_date))
 				{
-					$filter .= ") AND ( incident_date >= '" . date("Y-m-d H:i:s", strtotime($post->from_date)) . "' AND incident_date <= '" . date("Y-m-d H:i:s", strtotime($post->to_date)) . "' ) ";
+					$incident_query->where(array('incident_date >=' => date("Y-m-d H:i:s", strtotime($post->from_date)), 'incident_date <=' => date("Y-m-d H:i:s", strtotime($post->to_date))));
 				}
 
-				$incidents = orm::factory('incident')->join('incident_category', 'incident_category.incident_id', 'incident.id', 'INNER')->where($filter)->orderby('incident_date', 'desc')->find_all();
+				$incidents = $incident_query->join('incident_category', 'incident_category.incident_id', 'incident.id', 'INNER')->orderby('incident_date', 'desc')->find_all();
 
 				// CSV selected
 				if ($post->formato == 0)
@@ -178,7 +171,7 @@ Class Download_Reports_Controller extends Main_Controller {
 				// KML selected
 				else
 				{
-					$categories = ORM::factory('category')->where($filter2)->find_all();
+					$categories = ORM::factory('category')->where('category_visible',1)->in('id', $post->data_point)->find_all();
 
 					header("Content-Type: application/vnd.google-earth.kml+xml");
 					header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
