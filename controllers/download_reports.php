@@ -52,24 +52,12 @@ Class Download_Reports_Controller extends Main_Controller {
 			// Add some rules, the input field, followed by a list of checks, carried out in order
 			$post->add_rules('data_point.*', 'required', 'numeric', 'between[1,15]');
 			$post->add_rules('formato', 'required', 'numeric', 'between[0,1]');
-			$post->add_rules('from_date', 'date_mmddyyyy');
-			$post->add_rules('to_date', 'date_mmddyyyy');
+			$post->add_rules('from_date', 'required', 'date_mmddyyyy');
+			$post->add_rules('to_date', 'required', 'date_mmddyyyy');
 
 			// Validate the report dates, if included in report filter
 			if (!empty($_POST['from_date']) || !empty($_POST['to_date']))
 			{
-				// Valid FROM Date?
-				if (empty($_POST['from_date']) || (strtotime($_POST['from_date']) > strtotime("today")))
-				{
-					$post->add_error('from_date', 'range');
-				}
-
-				// Valid TO date?
-				if (empty($_POST['to_date']) || (strtotime($_POST['to_date']) > strtotime("today")))
-				{
-					$post->add_error('to_date', 'range');
-				}
-
 				// TO Date not greater than FROM Date?
 				if (strtotime($_POST['from_date']) > strtotime($_POST['to_date']))
 				{
