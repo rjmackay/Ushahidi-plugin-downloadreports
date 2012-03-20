@@ -21,8 +21,9 @@ Class Download_Reports_Controller extends Main_Controller {
 	function index()
 	{
 		$this->template->this_page = 'reports';
-		$this->template->header->header_block = $this->themes->header_block();
 		$this->template->header->this_page = 'download';
+		$this->template->header->header_block = $this->themes->header_block();
+		$this->template->footer->footer_block = $this->themes->footer_block();
 		$this->template->content = new View('download_reports');
 		$this->template->content->calendar_img = url::base() . "media/img/icon-calendar.gif";
 		$this->template->content->title = Kohana::lang('ui_admin.download_reports');
