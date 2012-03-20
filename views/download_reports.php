@@ -75,6 +75,28 @@
 ?>
 
 <script type="text/javascript" >
+
+// Check All / Check None
+function CheckAll( id, name )
+{
+	// TODO use the given name in the jQuery selector
+	//$("INPUT[name='" + name + "'][type='checkbox']").attr('checked', $('#' + id).is(':checked'));
+	$("td > input:checkbox").attr('checked', $('#' + id).is(':checked'));
+}
+
+//check if a checkbox has been ticked.
+function isChecked( id )
+{
+	//var checked = $("input[id="+id+"]:checked").length
+	var checked = $("td > input:checked").length
+	
+	if( checked == 0 )
+	return false
+	
+	else 
+	return true
+}
+	
 $(document).ready(function() {
 
 	$("#from_date").datepicker({
