@@ -14,11 +14,26 @@
 
 <div class="big-block">
 	<h1><?php echo Kohana::lang('ui_admin.download_reports');?></h1>
-	<div class="data_points">
+	<?php if ($form_error): ?>
+	<!-- red-box -->
+	<div class="red-box">
+		<h3>Error!</h3>
+		<ul>
+			<?php
+				foreach ($errors as $error_item => $error_description)
+				{
+					// print "<li>" . $error_description . "</li>";
+					print (!$error_description) ? '' : "<li>" . $error_description . "</li>";
+				}
+			?>
+		</ul>
+	</div>
+	<?php endif; ?>
+	<div class="categories">
 		<table>
 			<tr>
 				<td width="20">
-				<input type="checkbox" id="data_point_all" name="data_all" onclick="CheckAll(this.id)"/>
+				<input type="checkbox" id="category_all" name="category_all" onclick="CheckAll(this.id)"/>
 				</td>
 				<td><strong><?php echo strtoupper(Kohana::lang('ui_main.select_all'));?></strong></td>
 			</tr>
@@ -30,7 +45,7 @@
 				continue;
 			?>
 			<tr>
-				<td><?php print form::checkbox('data_point[]', $category->id, FALSE);?></td><td colspan="2"><?php echo $category->category_title;?></td>
+				<td><?php print form::checkbox('category[]', $category->id, FALSE);?></td><td colspan="2"><?php echo $category->category_title;?></td>
 			</tr>
 			<?php
 				}
@@ -64,97 +79,69 @@
 <?php
 
 	// Load jQuery
-	echo html::script(url::file_loc('js') . 'media/js/jquery', true);
-	echo html::script(url::file_loc('js') . 'media/js/jquery.form', true);
 	echo html::script(url::file_loc('js') . 'media/js/jquery.validate.min', true);
 	echo html::script(url::file_loc('js') . 'media/js/jquery.ui.min', true);
-	echo html::script(url::file_loc('js') . 'media/js/selectToUISlider.jQuery', true);
-	echo html::script(url::file_loc('js') . 'media/js/jquery.hovertip-1.0', true);
-	echo html::script(url::file_loc('js') . 'media/js/jquery.base64', true);
-	echo html::stylesheet(url::file_loc('css') . 'media/css/jquery.hovertip-1.0', '', true);
 ?>
 
 <script type="text/javascript" >
 
 // Check All / Check None
-function CheckAll( id, name )
+function CheckAll( id )
 {
-	// TODO use the given name in the jQuery selector
-	//$("INPUT[name='" + name + "'][type='checkbox']").attr('checked', $('#' + id).is(':checked'));
 	$("td > input:checkbox").attr('checked', $('#' + id).is(':checked'));
 }
 
-//check if a checkbox has been ticked.
-function isChecked( id )
-{
-	//var checked = $("input[id="+id+"]:checked").length
-	var checked = $("td > input:checked").length
-	
-	if( checked == 0 )
-	return false
-	
-	else 
-	return true
-}
-	
 $(document).ready(function() {
 
 	$("#from_date").datepicker({
-	showOn: "both",
-	buttonImage: "<?php echo $calendar_img;?>
-		",
-		changeMonth: true,
-		changeYear: true
-		});
-
-		$("#to_date").datepicker({
 		showOn: "both",
 		buttonImage: "<?php echo $calendar_img;?>",
+		buttonImageOnly: true,
 		changeMonth: true,
 		changeYear: true
-		});
+	});
 
-		$("#reportForm").validate({
+	$("#to_date").datepicker({
+		showOn: "both",
+		buttonImage: "<?php echo $calendar_img;?>",
+		buttonImageOnly: true,
+		changeMonth: true,
+		changeYear: true
+	});
+
+	$("#reportForm").validate({
 
 		rules:
 		{
-		"data_point[]": {
-		required: true
-		},
-		from_date: {
-		required: true,
-		date: true
-		},
-		to_date: {
-		required: true,
-		date: true
-		}
+			"category[]": {
+			required: true
+			},
+			from_date: {
+				required: true,
+				date: true
+			},
+			to_date: {
+				required: true,
+				date: true
+			}
 		},
 		messages:
 		{
-		"data_point[]":{
-		required: "<?php echo Kohana::lang('download_reports.category');?>"
-		},
-		from_date: {
-		required: "<?php echo Kohana::lang('download_reports.required');?>",
-		date: "<?php echo Kohana::lang('download_reports.from_date');?>"
-		},
-		to_date: {
-		required: "<?php echo Kohana::lang('download_reports.required');?>",
-		date: "<?php echo Kohana::lang('download_reports.to_date');?>"
+			"category[]":{
+				required: "<?php echo Kohana::lang('download_reports.category.required');?>"
+				},
+				from_date: {
+					required: "<?php echo Kohana::lang('download_reports.from_date.required');?>",
+					date: "<?php echo Kohana::lang('download_reports.from_date.date');?>"
+				},
+				to_date: {
+					required: "<?php echo Kohana::lang('download_reports.to_date.required');?>",
+					date: "<?php echo Kohana::lang('download_reports.to_date.date');?>"
+				}
+			},
+			errorPlacement: function(error, element) {
+			error.appendTo("#form_error");
 		}
-		},
-		errorPlacement: function(error, element) {
-		error.appendTo("#form_error");
-		}
-
-		});
-		});
-
-		// Check All / Check None
-		function CheckAll( id )
-		{
-
-		$("td > input:checkbox").attr('checked', $('#' + id).is(':checked'));
-		}
+	});
+});
 </script>

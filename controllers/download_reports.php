@@ -36,10 +36,12 @@ Class Download_Reports_Controller extends Main_Controller {
 
 		$to_date = substr($to->incident_date, 5, 2) . "/" . substr($to->incident_date, 8, 2) . "/" . substr($to->incident_date, 0, 4);
 
-		$form = array('data_point' => '', 'data_include' => '', 'from_date' => $from_date, 'to_date' => $to_date);
+		$form = array('category' => '', 'data_include' => '', 'category_all' => '', 'from_date' => '', 'to_date' => '');
 
 		$errors = $form;
 		$form_error = FALSE;
+		$form['from_date'] = $from_date;
+		$form['to_date'] = $to_date;
 
 		if ($_POST)
 		{
@@ -50,13 +52,13 @@ Class Download_Reports_Controller extends Main_Controller {
 			$post->pre_filter('trim', TRUE);
 
 			// Add some rules, the input field, followed by a list of checks, carried out in order
-			$post->add_rules('data_point.*', 'required', 'numeric', 'between[1,15]');
+			$post->add_rules('category.*', 'required', 'numeric', 'between[1,15]');
 			$post->add_rules('formato', 'required', 'numeric', 'between[0,1]');
 			$post->add_rules('from_date', 'required', 'date_mmddyyyy');
 			$post->add_rules('to_date', 'required', 'date_mmddyyyy');
 
 			// Validate the report dates, if included in report filter
-			if (!empty($_POST['from_date']) || !empty($_POST['to_date']))
+			if (!empty($_POST['from_date']) && !empty($_POST['to_date']))
 			{
 				// TO Date not greater than FROM Date?
 				if (strtotime($_POST['from_date']) > strtotime($_POST['to_date']))
@@ -69,7 +71,7 @@ Class Download_Reports_Controller extends Main_Controller {
 			if ($post->validate())
 			{
 				$incident_query = ORM::factory('incident')->where('incident_active', 1);
-				$incident_query->in('category_id', $post->data_point);
+				$incident_query->in('category_id', $post->category);
 
 				// Report Date Filter
 				if (!empty($post->from_date) && !empty($post->to_date))
@@ -159,7 +161,7 @@ Class Download_Reports_Controller extends Main_Controller {
 				// KML selected
 				else
 				{
-					$categories = ORM::factory('category')->where('category_visible',1)->in('id', $post->data_point)->find_all();
+					$categories = ORM::factory('category')->where('category_visible',1)->in('id', $post->category)->find_all();
 
 					header("Content-Type: application/vnd.google-earth.kml+xml");
 					header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -180,7 +182,7 @@ Class Download_Reports_Controller extends Main_Controller {
 				$form = arr::overwrite($form, $post->as_array());
 
 				// populate the error fields, if any
-				$errors = arr::overwrite($errors, $post->errors('report'));
+				$errors = arr::overwrite($errors, $post->errors('download_reports'));
 				$form_error = TRUE;
 			}
 
