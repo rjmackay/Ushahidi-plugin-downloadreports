@@ -41,7 +41,7 @@ Class Download_Controller extends Main_Controller {
 
 		$to_date = substr($to->incident_date, 5, 2) . "/" . substr($to->incident_date, 8, 2) . "/" . substr($to->incident_date, 0, 4);
 
-		$form = array('category' => '', 'data_include' => '', 'category_all' => '', 'from_date' => '', 'to_date' => '');
+		$form = array('category' => '', 'verified' => '', 'category_all' => '', 'from_date' => '', 'to_date' => '');
 
 		$errors = $form;
 		$form_error = FALSE;
@@ -58,6 +58,7 @@ Class Download_Controller extends Main_Controller {
 
 			// Add some rules, the input field, followed by a list of checks, carried out in order
 			$post->add_rules('category.*', 'required', 'numeric', 'between[1,15]');
+			$post->add_rules('verified.*', 'required', 'numeric', 'between[0,1]');
 			$post->add_rules('formato', 'required', 'numeric', 'between[0,1]');
 			$post->add_rules('from_date', 'required', 'date_mmddyyyy');
 			$post->add_rules('to_date', 'required', 'date_mmddyyyy');
@@ -77,6 +78,18 @@ Class Download_Controller extends Main_Controller {
 			{
 				$incident_query = ORM::factory('incident')->where('incident_active', 1);
 				$incident_query->in('category_id', $post->category);
+
+				// If only unverified selected
+				if (in_array('0', $post->verified) && !in_array('1', $post->verified))
+				{
+					$incident_query->where('incident_verified', 0);
+				}
+				// If only verified selected
+				elseif (!in_array('0', $post->verified) && in_array('1', $post->verified))
+				{
+					$incident_query->where('incident_verified', 1);
+				}
+				// else - do nothing
 
 				// Report Date Filter
 				if (!empty($post->from_date) && !empty($post->to_date))

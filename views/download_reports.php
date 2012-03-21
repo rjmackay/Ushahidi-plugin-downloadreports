@@ -30,6 +30,7 @@
 	</div>
 	<?php endif; ?>
 	<div class="categories">
+	<h2><?php echo Kohana::lang('ui_main.categories') ?></h2>
 		<table>
 			<tr>
 				<td width="20">
@@ -51,6 +52,14 @@
 				}
 			?>
 		</table>
+		<h2><?php echo Kohana::lang('ui_main.verification') ?></h2>
+		<table style="width: 350px;">
+			<tr>
+				<td width = 20><?php print form::checkbox('verified[]', 1, TRUE); ?></td><td><?php echo Kohana::lang('ui_main.verified');?></td>
+				<td width = 20><?php print form::checkbox('verified[]', 0, TRUE); ?></td><td><?php echo Kohana::lang('ui_main.unverified');?></td>
+			</tr>
+		</table>
+		<h2>Date range</h2>
 		<table>
 			<tr>
 				<td><h2><?php echo Kohana::lang('ui_admin.from_date');?>:</h2></td>
