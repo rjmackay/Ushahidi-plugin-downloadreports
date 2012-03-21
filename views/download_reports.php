@@ -17,7 +17,7 @@
 	<?php if ($form_error): ?>
 	<!-- red-box -->
 	<div class="red-box">
-		<h3>Error!</h3>
+		<h3><?php echo Kohana::lang('ui_main.error');?></h3>
 		<ul>
 			<?php
 				foreach ($errors as $error_item => $error_description)
@@ -76,72 +76,3 @@
 	<div id="form_error"></div>
 	<?php print form::close();?>
 </div>
-<?php
-
-	// Load jQuery
-	echo html::script(url::file_loc('js') . 'media/js/jquery.validate.min', true);
-	echo html::script(url::file_loc('js') . 'media/js/jquery.ui.min', true);
-?>
-
-<script type="text/javascript" >
-
-// Check All / Check None
-function CheckAll( id )
-{
-	$("td > input:checkbox").attr('checked', $('#' + id).is(':checked'));
-}
-
-$(document).ready(function() {
-
-	$("#from_date").datepicker({
-		showOn: "both",
-		buttonImage: "<?php echo $calendar_img;?>",
-		buttonImageOnly: true,
-		changeMonth: true,
-		changeYear: true
-	});
-
-	$("#to_date").datepicker({
-		showOn: "both",
-		buttonImage: "<?php echo $calendar_img;?>",
-		buttonImageOnly: true,
-		changeMonth: true,
-		changeYear: true
-	});
-
-	$("#reportForm").validate({
-
-		rules:
-		{
-			"category[]": {
-			required: true
-			},
-			from_date: {
-				required: true,
-				date: true
-			},
-			to_date: {
-				required: true,
-				date: true
-			}
-		},
-		messages:
-		{
-			"category[]":{
-				required: "<?php echo Kohana::lang('download_reports.category.required');?>"
-				},
-				from_date: {
-					required: "<?php echo Kohana::lang('download_reports.from_date.required');?>",
-					date: "<?php echo Kohana::lang('download_reports.from_date.date');?>"
-				},
-				to_date: {
-					required: "<?php echo Kohana::lang('download_reports.to_date.required');?>",
-					date: "<?php echo Kohana::lang('download_reports.to_date.date');?>"
-				}
-			},
-			errorPlacement: function(error, element) {
-			error.appendTo("#form_error");
-		}
-	});
-});
-</script>

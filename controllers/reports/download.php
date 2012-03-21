@@ -22,11 +22,16 @@ Class Download_Controller extends Main_Controller {
 	{
 		$this->template->this_page = 'download';
 		$this->template->header->this_page = 'download';
-		$this->template->header->header_block = $this->themes->header_block();
-		$this->template->footer->footer_block = $this->themes->footer_block();
 		$this->template->content = new View('download_reports');
 		$this->template->content->calendar_img = url::base() . "media/img/icon-calendar.gif";
 		$this->template->content->title = Kohana::lang('ui_admin.download_reports');
+
+		// Javascript Header
+		$this->themes->js = new View('download_reports_js');
+		$this->themes->js->calendar_img = url::base() . "media/img/icon-calendar.gif";
+
+		$this->template->header->header_block = $this->themes->header_block();
+		$this->template->footer->footer_block = $this->themes->footer_block();
 
 		// Select first and last incident
 		$from = orm::factory('incident')->orderby('incident_date', 'asc')->find();

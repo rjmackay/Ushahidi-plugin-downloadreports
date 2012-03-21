@@ -16,18 +16,34 @@ class report {
 
 	public function __construct()
 	{
+		// Hook into routing
+		Event::add('system.pre_controller', array($this, 'add'));
 
-		plugin::add_stylesheet('downloadreports/views/css/download_reports');
-		Event::add('ushahidi_action.nav_main_top', array($this, 'add'));
-
+		Event::add('ushahidi_action.nav_main_top', array($this, '_add_nav'));
+	}
+	
+	public function add()
+	{
+		switch (Router::$current_uri) {
+			case "reports/download":
+				plugin::add_stylesheet('downloadreports/views/css/download_reports');
+				Event::add('ushahidi_action.header_scripts', array($this, '_add_scripts'));
+			break;
+		}
 	}
 
-	public function add()
+	public function _add_nav()
 	{
 		$page = Event::$data;
 		// Add plugin link to nav_main_top
 		echo "<li><a href='" . url::site() . "reports/download' class='".($page == 'download' ? 'active' : '')."'>" . strtoupper(Kohana::lang('ui_main.download_reports')) . "</a></li>";
 
+	}
+	
+	public function _add_scripts()
+	{
+		echo html::script(url::file_loc('js') . 'media/js/jquery.validate.min', true);
+		echo html::script(url::file_loc('js') . 'media/js/jquery.ui.min', true);
 	}
 
 }
