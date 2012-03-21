@@ -11,7 +11,7 @@
  * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL)
  */
 
-Class Download_Reports_Controller extends Main_Controller {
+Class Download_Controller extends Main_Controller {
 
 	function __construct()
 	{
@@ -20,7 +20,7 @@ Class Download_Reports_Controller extends Main_Controller {
 
 	function index()
 	{
-		$this->template->this_page = 'reports';
+		$this->template->this_page = 'download';
 		$this->template->header->this_page = 'download';
 		$this->template->header->header_block = $this->themes->header_block();
 		$this->template->footer->footer_block = $this->themes->footer_block();
