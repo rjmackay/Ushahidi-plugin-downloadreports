@@ -1,11 +1,11 @@
 === About ===
 name: Download Reports
-website: https://github.com/mgnazzo/Ushahidi_plugins/
-description: Allows all users to download reports by category in CSV/KML. 
-version: 0.1
-requires: 2.0
-tested up to: 2.1
-author:  Marco Gnazzo. Based on work of George Chamales and David Kobia.
+website: https://github.com/rjmackay/Ushahidi-plugin-downloadreports
+description: Allows all users to download reports by category in CSV/KML. Based on work by Marco Gnazzo, George Chamales and David Kobia.
+version: 0.2
+requires: 2.2
+tested up to: 2.2
+author:  Robbie Mackay.
 author website: 
 
 == Description ==
