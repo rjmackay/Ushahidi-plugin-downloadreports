@@ -76,6 +76,13 @@ Class Download_Controller extends Main_Controller {
 			// $post validate check
 			if ($post->validate())
 			{
+				// Check child categories too
+				$categories = ORM::factory('category')->select('id')->in('parent_id', $post->category)->find_all();
+				foreach($categories as $cat)
+				{
+					$post->category[] = $cat->id;
+				}
+
 				$incident_query = ORM::factory('incident')->select('DISTINCT incident.id')->select('incident.*')->where('incident_active', 1);
 				$incident_query->in('category_id', $post->category);
 
