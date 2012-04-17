@@ -29,30 +29,23 @@
 		</ul>
 	</div>
 	<?php endif; ?>
-	<div class="categories">
+	<div class="categories report_category">
 	<h2><?php echo Kohana::lang('ui_main.categories') ?></h2>
-		<table>
-			<tr>
-				<td width="20">
-				<input type="checkbox" id="category_all" name="category_all" onclick="CheckAll(this.id)"/>
-				</td>
-				<td><strong><?php echo strtoupper(Kohana::lang('ui_main.select_all'));?></strong></td>
-			</tr>
-			<?php
-				foreach ($categories as $category)
-				{
-				// excludes trusted reports	category
-				if ($category->category_title == "Trusted Reports")
-				continue;
-			?>
-			<tr>
-				<td><?php print form::checkbox('category[]', $category->id, FALSE);?></td><td colspan="2"><?php echo $category->category_title;?></td>
-			</tr>
-			<?php
-				}
-			?>
-		</table>
-		<h2><?php echo Kohana::lang('ui_main.verification') ?></h2>
+		
+		<div style="clear: left; width: 100%; float: left;">
+			<input type="checkbox" id="category_all" name="category_all" onclick="CheckAll(this.id, 'category')"/><strong><?php echo strtoupper(Kohana::lang('ui_main.select_all'));?></strong>
+		</div>
+		<?php
+		$selected_categories = (!empty($form['incident_category']) AND is_array($form['incident_category']))
+					? $selected_categories = $form['incident_category']
+				: array();
+				
+			echo category::tree($categories, $selected_categories, 'category', 2, TRUE);
+			
+		?>
+	</div>
+	<div>
+		<h2 style="clear: both;"><?php echo Kohana::lang('ui_main.verification') ?></h2>
 		<table style="width: 350px;">
 			<tr>
 				<td width = 20><?php print form::checkbox('verified[]', 1, TRUE); ?></td><td><?php echo Kohana::lang('ui_main.verified');?></td>

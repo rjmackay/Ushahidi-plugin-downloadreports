@@ -57,7 +57,7 @@ Class Download_Controller extends Main_Controller {
 			$post->pre_filter('trim', TRUE);
 
 			// Add some rules, the input field, followed by a list of checks, carried out in order
-			$post->add_rules('category.*', 'required', 'numeric', 'between[1,15]');
+			$post->add_rules('category.*', 'required', 'numeric');
 			$post->add_rules('verified.*', 'required', 'numeric', 'between[0,1]');
 			$post->add_rules('formato', 'required', 'numeric', 'between[0,1]');
 			$post->add_rules('from_date', 'required', 'date_mmddyyyy');
@@ -206,7 +206,7 @@ Class Download_Controller extends Main_Controller {
 
 		}
 
-		$categories = ORM::factory('category')->where('category_visible', '1')->find_all();
+		$categories = $this->get_categories($form['category']);
 
 		$this->template->content->categories = $categories;
 		$this->template->content->form = $form;

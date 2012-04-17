@@ -1,3 +1,4 @@
+
 /**
  * Download reports js file.
  *
@@ -14,9 +15,9 @@
  * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL) 
  */
 // Check All / Check None
-function CheckAll( id )
+function CheckAll( id, checkboxName)
 {
-	$("td > input:checkbox").attr('checked', $('#' + id).is(':checked'));
+	$("input:checkbox[name='"+checkboxName+"[]']").attr('checked', $('#' + id).is(':checked'));
 }
 
 $(document).ready(function() {
@@ -35,6 +36,15 @@ $(document).ready(function() {
 		buttonImageOnly: true,
 		changeMonth: true,
 		changeYear: true
+	});
+	
+	/* Dynamic categories */
+	
+	// Category treeview
+	$("#category-column-1,#category-column-2").treeview({
+	  persist: "location",
+	  collapsed: true,
+	  unique: false
 	});
 
 	$("#reportForm").validate({
