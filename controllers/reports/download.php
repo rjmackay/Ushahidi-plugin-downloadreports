@@ -76,7 +76,7 @@ Class Download_Controller extends Main_Controller {
 			// $post validate check
 			if ($post->validate())
 			{
-				$incident_query = ORM::factory('incident')->where('incident_active', 1);
+				$incident_query = ORM::factory('incident')->select('DISTINCT incident.id')->select('incident.*')->where('incident_active', 1);
 				$incident_query->in('category_id', $post->category);
 
 				// If only unverified selected
