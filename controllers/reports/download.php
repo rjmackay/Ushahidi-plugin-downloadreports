@@ -29,6 +29,7 @@ Class Download_Controller extends Main_Controller {
 		// Javascript Header
 		$this->themes->js = new View('download_reports_js');
 		$this->themes->js->calendar_img = url::base() . "media/img/icon-calendar.gif";
+		$this->themes->treeview_enabled = TRUE;
 
 		$this->template->header->header_block = $this->themes->header_block();
 		$this->template->footer->footer_block = $this->themes->footer_block();
