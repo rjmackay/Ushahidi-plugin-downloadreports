@@ -39,9 +39,14 @@
 		$selected_categories = (!empty($form['incident_category']) AND is_array($form['incident_category']))
 					? $selected_categories = $form['incident_category']
 				: array();
-				
+		if (Kohana::config('settings.ushahidi_version') >= 2.4)
+		{		
+			echo category::tree($categories, TRUE, $selected_categories, 'category', 2, TRUE);
+		}
+		else
+		{		
 			echo category::tree($categories, $selected_categories, 'category', 2, TRUE);
-			
+		}
 		?>
 	</div>
 	<div>
