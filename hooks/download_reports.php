@@ -19,7 +19,7 @@ class report {
 		// Hook into routing
 		Event::add('system.pre_controller', array($this, 'add'));
 
-		Event::add('ushahidi_action.nav_main_top', array($this, '_add_nav'));
+		//Event::add('ushahidi_action.nav_main_top', array($this, '_add_nav'));
 	}
 	
 	public function add()
