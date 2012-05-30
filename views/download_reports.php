@@ -33,7 +33,7 @@
 	<h2><?php echo Kohana::lang('ui_main.categories') ?></h2>
 		
 		<div style="clear: left; width: 100%; float: left;">
-			<input type="checkbox" id="category_all" name="category_all" onclick="CheckAll(this.id, 'category')"/><strong><?php echo strtoupper(Kohana::lang('ui_main.select_all'));?></strong>
+			<input type="checkbox" id="category_all" name="category_all" onclick="CheckAll(this.id, 'category')"/><strong><?php echo utf8::strtoupper(Kohana::lang('ui_main.select_all'));?></strong>
 		</div>
 		<?php
 		$selected_categories = (!empty($form['incident_category']) AND is_array($form['incident_category']))
