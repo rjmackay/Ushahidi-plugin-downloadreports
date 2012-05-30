@@ -36,7 +36,7 @@ class report {
 	{
 		$page = Event::$data;
 		// Add plugin link to nav_main_top
-		echo "<li><a href='" . url::site() . "reports/download' class='".($page == 'download' ? 'active' : '')."'>" . strtoupper(Kohana::lang('ui_main.download_reports')) . "</a></li>";
+		echo "<li><a href='" . url::site() . "reports/download' class='".($page == 'download' ? 'active' : '')."'>" . utf8::strtoupper(Kohana::lang('ui_main.download_reports')) . "</a></li>";
 
 	}
 	
