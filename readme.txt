@@ -4,9 +4,8 @@ website: https://github.com/rjmackay/Ushahidi-plugin-downloadreports
 description: Allows all users to download reports by category in CSV/KML. Based on work by Marco Gnazzo, George Chamales and David Kobia.
 version: 0.3
 requires: 2.2
-tested up to: 2.2
+tested up to: 2.4
 author:  Robbie Mackay.
-author website: 
 
 == Description ==
 It adds the link "Download Reports" in the home page top bar, allowing all users to download reports by category in CSV/KML. 
