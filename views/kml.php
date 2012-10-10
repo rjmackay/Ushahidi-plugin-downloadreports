@@ -14,6 +14,13 @@
 				<?php echo "ff" . $category->category_color;?>
 				</color>
 				<scale>0.8</scale>
+				<Icon>
+					<href>
+					<?php
+						echo url::base() . "plugins/downloadreports/img/circle_border.png";
+					?>
+					</href>
+				</Icon>
 			</IconStyle>
 		</Style>
 		<?php
