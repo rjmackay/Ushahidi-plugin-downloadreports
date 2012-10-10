@@ -14,6 +14,13 @@
 				<?php echo "ff" . $category->category_color;?>
 				</color>
 				<scale>0.8</scale>
+				<Icon>
+					<href>
+					<?php
+						echo url::base() . "plugins/downloadreports/img/circle_border.png";
+					?>
+					</href>
+				</Icon>
 			</IconStyle>
 		</Style>
 		<?php
@@ -27,6 +34,7 @@
 			// Get the first category that this placemarker is assigned to
 			foreach ($item->category as $item_category)
 			{
+				if (! $item_category->category_visible) continue;
 				echo "<styleUrl>#category_" . $item_category->id . "</styleUrl>";
 				break;
 			}
@@ -38,6 +46,7 @@
 					echo "<br /><a href=\"" . url::base() . 'reports/view/' . $item->id . "\">More...</a>";
 				?>]]>
 			</description>
+			<address><![CDATA[<?php echo $item->location->location_name; ?>]]></address>
 			<Point>
 				<coordinates>
 					<?php echo $item->location->longitude . "," . $item->location->latitude;?>
