@@ -34,6 +34,7 @@
 			// Get the first category that this placemarker is assigned to
 			foreach ($item->category as $item_category)
 			{
+				if (! $item_category->category_visible) continue;
 				echo "<styleUrl>#category_" . $item_category->id . "</styleUrl>";
 				break;
 			}

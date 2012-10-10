@@ -187,7 +187,7 @@ Class Download_Controller extends Main_Controller {
 				// KML selected
 				else
 				{
-					$categories = ORM::factory('category')->where('category_visible',1)->in('id', $post->category)->find_all();
+					$categories = ORM::factory('category')->where('category_visible',1)->find_all();
 
 					header("Content-Type: application/vnd.google-earth.kml+xml");
 					header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
