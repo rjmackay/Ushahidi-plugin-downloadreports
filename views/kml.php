@@ -45,6 +45,7 @@
 					echo "<br /><a href=\"" . url::base() . 'reports/view/' . $item->id . "\">More...</a>";
 				?>]]>
 			</description>
+			<address><![CDATA[<?php echo $item->location->location_name; ?>]]></address>
 			<Point>
 				<coordinates>
 					<?php echo $item->location->longitude . "," . $item->location->latitude;?>
