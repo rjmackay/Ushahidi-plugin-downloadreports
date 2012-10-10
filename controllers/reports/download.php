@@ -214,9 +214,6 @@ Class Download_Controller extends Main_Controller {
 
 		}
 
-		$categories = $this->get_categories($form['category']);
-
-		$this->template->content->categories = $categories;
 		$this->template->content->form = $form;
 		$this->template->content->errors = $errors;
 		$this->template->content->form_error = $form_error;
