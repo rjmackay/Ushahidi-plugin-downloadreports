@@ -39,17 +39,17 @@
 		$selected_categories = (!empty($form['incident_category']) AND is_array($form['incident_category']))
 					? $selected_categories = $form['incident_category']
 				: array();
-		if (Kohana::config('settings.ushahidi_version') < 2.4)
+		if (method_exists('category','form_tree'))
+		{
+			echo category::form_tree('category', $selected_categories, 2, TRUE);
+		}
+ 		elseif (Kohana::config('settings.ushahidi_version') < 2.4)
 		{
 			echo category::tree(ORM::factory('category')->find_all(), $selected_categories, 'category', 2, TRUE);
 		}
 		elseif (Kohana::config('settings.ushahidi_version') == 2.4)
 		{
 			echo category::tree(ORM::factory('category')->find_all(), TRUE, $selected_categories, 'category', 2, TRUE);
-		}
-		else
-		{
-			echo category::form_tree('category', $selected_categories, 2, TRUE);
 		}
 		?>
 	</div>
