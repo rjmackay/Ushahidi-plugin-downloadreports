@@ -43,13 +43,13 @@
 		{
 			echo category::form_tree('category', $selected_categories, 2, TRUE);
 		}
- 		elseif (Kohana::config('settings.ushahidi_version') < 2.4)
-		{
-			echo category::tree(ORM::factory('category')->find_all(), $selected_categories, 'category', 2, TRUE);
-		}
-		elseif (Kohana::config('settings.ushahidi_version') == 2.4)
+		elseif (Kohana::config('settings.ushahidi_version') >= 2.4 AND Kohana::config('settings.ushahidi_version') <= 2.5)
 		{
 			echo category::tree(ORM::factory('category')->find_all(), TRUE, $selected_categories, 'category', 2, TRUE);
+		}
+		elseif (Kohana::config('settings.ushahidi_version') < 2.4)
+		{
+			echo category::tree(ORM::factory('category')->find_all(), $selected_categories, 'category', 2, TRUE);
 		}
 		?>
 	</div>
