@@ -8,6 +8,7 @@
  * that is available through the world-wide-web at the following URI:
  * http://www.gnu.org/copyleft/lesser.html
  * @author Marco Gnazzo
+ * @Modifield by Leif Percifield, Michael Kahane for CEGSS, OSF and Parsons
  * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL)
  */
 
@@ -23,8 +24,15 @@ Class Download_Controller extends Main_Controller {
 		$this->template->this_page = 'download';
 		$this->template->header->this_page = 'download';
 		$this->template->content = new View('download_reports');
+		$custom_forms = customforms::get_custom_form_fields();
+		$this->template->content->disp_custom_fields = $custom_forms;
+		$this->template->content->search_form = TRUE;
 		$this->template->content->calendar_img = url::base() . "media/img/icon-calendar.gif";
 		$this->template->content->title = Kohana::lang('ui_admin.download_reports');
+		
+		
+		$result = Database::instance()->query("SHOW TABLES LIKE 'actionable'"); //see if Actionable plugin is being used.
+		$actionableExists = count($result) > 0;
 
 		// Javascript Header
 		$this->themes->js = new View('download_reports_js');
@@ -48,9 +56,13 @@ Class Download_Controller extends Main_Controller {
 		$form_error = FALSE;
 		$form['from_date'] = $from_date;
 		$form['to_date'] = $to_date;
+		$table_prefix = Kohana::config('database.default.table_prefix');
+		$query = array();
 
 		if ($_POST)
 		{
+			$csv_headers = array("#","INCIDENT TITLE","INCIDENT DATE","LOCATION","DESCRIPTION","CATEGORY","LATITUDE","LONGITUDE","APPROVED","VERIFIED");
+			$report_csv = '';
 			// Instantiate Validation, use $post, so we don't overwrite $_POST fields with our own things
 			$post = Validation::factory($_POST);
 
@@ -98,19 +110,137 @@ Class Download_Controller extends Main_Controller {
 					$incident_query->where('incident_verified', 1);
 				}
 				// else - do nothing
+				
+				// THIS IS CALLED IF THERE ARE ANY CUSTOM FIELDS DEFINED FOR THIS INSTALLATION OF USHAHIDI	
+				if(isset($post->custom_field))
+				{		
+					$where_text = "";
+					$i = 0;
+					$query_text = 'CREATE TEMPORARY TABLE sorted AS (SELECT
+					  incident_id,';
+					foreach($post->custom_field as $customfield){
+						//IF THERE ARE ANY CUSTOMS FIELDS THAT WE ARE FILTERING BY
+						if($customfield != "---NOT_SELECTED---"){
+							$field_id = array_keys($post->custom_field,$customfield);
+							if (intval($field_id) < 1)
+								continue;
+			
+							$field_value = $customfield;
+							if (is_array($field_value))
+							{
+								$field_value = implode(",", $field_value);
+							}
+											
+							$i++;
+							if ($i > 1)
+							{
+								$where_text .= " AND ";
+								$query_text .= ',';
+								
+							}
+							
+							$where_text .= "(sorted.".intval($field_id[0])
+								. " = '".Database::instance()->escape_str(trim($field_value))."')";
+							
+							$query_text .= 'MAX(IF(form_field_id = '.intval($field_id[0]).', form_response, NULL)) AS '.'"'.intval($field_id[0]).'"';
+
+						}
+					}
+					
+					// IF WE ARE FILTERING BY ANY CUSTOM FIELDS
+					if ($i > 0)
+					{	
+						$query_text .='FROM
+					  form_response
+					GROUP BY
+					  incident_id)';
+					  
+					  $sortedquery = Database::instance()->query($query_text);
+
+
+						$incident_query->join('sorted','sorted.incident_id','incident.id','INNER')->where($where_text);
+/*
+						echo "<pre>";
+						var_dump($incident_query);
+						echo "</pre>";
+						exit;
+*/
+
+/*
+						$incident_ids = '';
+						foreach ($rows as $row)
+						{
+							if ($incident_ids != '')
+							{
+									$incident_ids .= ',';
+							}
+		
+							$incident_ids .= $row->incident_id;
+						}
+*/
+					}
+					//we have some custom fields. add them to the CSV header
+					foreach($custom_forms as $field_name)
+					{
+						$csv_headers[] = $field_name['field_name']."-".$field_name['form_id'];
+					}
+					
+				}
+				
+				//'actionable.actionable','actionable.action_taken','actionable.action_summary','actionable.action_date'
+				if($actionableExists){
+					$incident_query->join('actionable','actionable.incident_id','incident.id','INNER')->select('actionable.actionable','actionable.action_taken','actionable.action_summary','actionable.action_date');
+					$csv_headers[] = "Actionable Status";
+					$csv_headers[] = "Action Summary";
+					$csv_headers[] = "Action Date";
+				}
+				
+				//Called if actionable filter is set. 
+				if(isset($post->actionable) && $post->actionable!='all'){
+					if($post->actionable=='actionable'){
+						$actionableQuery = "((actionable = 1 OR actionable = 2) AND action_taken = 0)";
+					}
+					if($post->actionable=='urgent'){
+						$actionableQuery = "(actionable = 2 AND action_taken = 0)";
+					}
+					if($post->actionable=='action_taken'){
+						$actionableQuery = "(action_taken = 1)";
+					}
+					if($post->actionable=='not_actionable'){
+						$actionableQuery = "(actionable = 0)";
+					}
+	
+					$incident_query->where($actionableQuery);
+				}
+
 
 				// Report Date Filter
 				if (!empty($post->from_date) && !empty($post->to_date))
 				{
-					$incident_query->where(array('incident_date >=' => date("Y-m-d H:i:s", strtotime($post->from_date)), 'incident_date <=' => date("Y-m-d H:i:s", strtotime($post->to_date))));
+					$incident_query->where(array('incident_date >=' => date("Y-m-d H:i:s", strtotime($post->from_date)), 'incident_date <=' => date("Y-m-d H:i:s", strtotime($post->to_date." 23:59:59"))));
+					
+
+
+
+
 				}
 
-				$incidents = $incident_query->join('incident_category', 'incident_category.incident_id', 'incident.id', 'INNER')->orderby('incident_date', 'desc')->find_all();
+				$incidents = $incident_query->join('incident_category', 'incident_category.incident_id', 'incident.id', 'INNER')->orderby('incident_date', 'desc')->find_all();	
+				//DUMP THE CONTENTS OF THE VAR -- THIS BREAKS IT!!!!
+					
+/*
+						echo "<pre>";
+						var_dump($custom_forms);
+						var_dump($categories);
+						var_dump($incidents);
+						echo "</pre>";
+						exit;
+*/
 
 				// CSV selected
 				if ($post->formato == 0)
 				{
-					$report_csv = "#,INCIDENT TITLE,INCIDENT DATE,LOCATION,DESCRIPTION,CATEGORY,LATITUDE,LONGITUDE,APPROVED,VERIFIED\n";
+					$report_csv .= download::arrayToCsv($csv_headers);
 
 					foreach ($incidents as $incident)
 					{
@@ -159,9 +289,36 @@ Class Download_Controller extends Main_Controller {
 						{
 							array_push($new_report, "NO");
 						}
+						
+						$incident_id = $incident->id;
+						$custom_fields = customforms::get_custom_form_fields($incident_id, NULL, FALSE);
+						if ( ! empty($custom_fields))
+						{
+							foreach($custom_fields as $custom_field)
+							{
+								array_push($new_report, '"'. $this->_csv_text($custom_field['field_response']). '"');
+							}
+						}
+						else
+						{
+							foreach ($custom_forms as $custom)
+							{
+								array_push($new_report,'');
+							}
+						}
+						
+						if($actionableExists){
+							if($incident->actionable==0) $actionableStatus = "Not Actionable";
+							else if($incident->actionable==1 && $incident->action_taken==0) $actionableStatus = "Actionable";
+							else if($incident->actionable==2 && $incident->action_taken==0) $actionableStatus = "Urgent";
+							else if($incident->action_taken==1) $actionableStatus = "Action Taken";
+							else $actionableStatus = "";
+							array_push($new_report, '"' . $this->_csv_text($actionableStatus) . '"');
+							array_push($new_report, '"' . $this->_csv_text($incident->action_summary) . '"');
+							array_push($new_report, '"' . $incident->action_date .'"');
+						}
 
 						array_push($new_report, "\n");
-
 						$repcnt = 0;
 						foreach ($new_report as $column)
 						{
